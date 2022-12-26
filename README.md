@@ -16,3 +16,7 @@ Main feutures:
 
 
 Testing on Audi A6/100 C4 with Digifant ECU ABK motor.
+
+
+
+![Schem](PCB/schematic.gif)
