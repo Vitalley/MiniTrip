@@ -1,5 +1,5 @@
 # MiniTrip
-Miniature trip computer for Audi 80/100/200/A6C4
+Miniature trip computer for Audi 80/100/200/A6C4 on PIC16F1847
 
 ![Front](MiniTrip_Front.jpg)
 
