@@ -1,4 +1,4 @@
 # MiniTrip
 Miniature trip computer for Audi 80/100/200/A6C4
-!(MiniTrip_Front.jpg)
-!(MiniTrip_Back.jpg)
+![Front](MiniTrip_Front.jpg)
+![Back](MiniTrip_Back.jpg)
