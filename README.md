@@ -23,10 +23,10 @@ Testing on Audi A6/100 C4 with Digifant ECU ABK motor.
 
 Fuel level sensor
 
-|Fuel|Voltage|
-|-----|------|
-|12L|	 	- 2,4v|
-|20L|		- 3,0v|
-|40L|		 - 3,8v|
-|60L|		 - 4,5v|
-|80L|		 - 5,5v|
+|Fuel	|	Voltage|
+|-----	|------		|
+|12L	| 	- 2,4v|
+|20L	|	- 3,0v|
+|40L	|	 - 3,8v|
+|60L	|	 - 4,5v|
+|80L	|	 - 5,5v|
