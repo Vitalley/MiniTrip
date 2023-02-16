@@ -130,7 +130,7 @@ case 2:	fueltank = SMA_filter(GET_ADC(0), fuel_array, array_size_fuel);
 default: seladc=0;
 }
 	if (saveEEDATA) {EEWRITEFATA(); saveEEDATA=0;}
-	if (speed>20) turn=1; else turn=0;
+	if (speed>10) turn=1; else turn=0;
 	if (fuel>1) motoron=1; else motoron=0;
 
 	switch (mscr)
@@ -161,12 +161,14 @@ default: seladc=0;
 	break;
 	
 	case 1:	
+		if (!motoron) if (!turn) {mscr++; break;}
 		if (scrn != 3)oledClear(0x3C);
 		screen3();
 	break;
 	
 	case 2:
-		if (~turn && ~motoron) {mscr++; break;}
+		if (!turn) 
+			if (!motoron) {mscr++; break;}
 		if (scrn != 4)oledClear(0x3C);
 		screen4();
 	break;
@@ -282,7 +284,7 @@ void TMR0_ISR(void)
     }
     if (++Count7n2Seconds >= 564/*1022*/)//563
     {
-	fuel = imp >> 1; imp = 0;
+	fuel = imp; imp = 0;
 	Count7n2Seconds=0;
     }
     if (++CountSPD >= 683)//698
@@ -315,13 +317,14 @@ void TripCounter(void)
 //}
 void interrupt isr(void)
 {
-    if(INTCONbits.TMR0IE == 1 && INTCONbits.TMR0IF == 1)
-    {
-        TMR0_ISR();
-    }
-
     if(INTCONbits.IOCIE == 1 && INTCONbits.IOCIF == 1)
     {
+    	if(IOCBFbits.IOCBF3 == 1)
+    	{
+        	IOCBFbits.IOCBF3 = 0;
+	        impavr++;
+	        imp++;   
+    	}
         // interrupt on change for pin IOCBF0
     	if(IOCBFbits.IOCBF0 == 1)
    	{
@@ -329,12 +332,6 @@ void interrupt isr(void)
         	if (RB0 == 0) TripCounter();	     
     	}	
 	// interrupt on change for pin IOCBF3
-    	if(IOCBFbits.IOCBF3 == 1)
-    	{
-        	IOCBFbits.IOCBF3 = 0;
-	        impavr++;
-	        imp++;   
-    	}
     	if(IOCBFbits.IOCBF5 == 1)
     	{
         	IOCBFbits.IOCBF5 = 0;
@@ -342,7 +339,12 @@ void interrupt isr(void)
         	//if (RB5 == 0)TripCounter();  
     	}		
     }
-    else if(INTCONbits.PEIE == 1)
+    else 
+    if(INTCONbits.TMR0IE == 1 && INTCONbits.TMR0IF == 1)
+    {
+        TMR0_ISR();
+    }
+	if(INTCONbits.PEIE == 1)
     {
         if(PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1)
         {
