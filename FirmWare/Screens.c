@@ -4,9 +4,8 @@
 extern char scrn;
 extern unsigned int speed, km,fuel,fueltank, volt;
 extern unsigned long int trip, impavr,triptime, totalodo,totaltime, TO1_ODO, TO1_TIME, TO2_ODO, TO2_TIME;
-const unsigned int 	impilse_litre = impilse_per_litre / 10,
-			rash_const_mul = 400;// 10000000 / impilse_per_litre;
-			rash_const_div = 25;// impilse_per_litre / 1000;
+const unsigned int 	impilse_litre = impilse_per_litre / 10;
+const unsigned  int 	Rdiv = impilse_per_litre / 100;
 void screen0(void)
 {
 	scrn=0;
@@ -16,39 +15,42 @@ void screen0(void)
 	//PutStr_mid(0,6,"nopqrstuvwxyz",0x3C);
 	PutStr_mid(20,3,"Mini trip",0x3C);
 }
-
-
-
 void screen1(void)
 {
 	scrn=1;// Расход на 100км, израсходовано литров топлива, средний расход топлива
-	unsigned int rash=(rash_const_mul*(unsigned long int)fuel)/speed;
+	unsigned int rash=(200*(unsigned long int)fuel)/speed;
 	if (rash > 999) rash = 999;// Убрал выход расхода за пределы 99л/ч
+	
 	PutStr_mid(2,0,"Fuel const",0x3C);
 	OLED_temper_big(16, 2,rash, 0x3C);
 	PutStr_mid(98,2,"Ltr",0x3C);
 	PutStr_mid(98,4,"100",0x3C);
-	OLED_mid(0,6,impilse_per_litre/50000,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
+	
+	// Всего израсходовано на поездку
+	OLED_mid(0,6,impavr/impilse_per_litre,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
 	PutChar_mid(46,6,'l',0x3C);
-	OLED_mid(81,6,(impavr/50)/trip,0x3C,2);// Средний расход топлива
+	
+	// Средний расход топлива за поездку
+	
+	OLED_mid(81,6,(10*impavr/Rdiv)/trip,0x3C,2);// Средний расход топлива
 	OLED_dot_mid(103,6,0x3C);
-	OLED_mid(106,6,((impavr/5)/trip)%10,0x3C,1);
-	PutStr_mid(118,6,"l",0x3C);
+	OLED_mid(106,6,((100*impavr/Rdiv)/trip)%10,0x3C,1);
+	PutChar_mid(118,6,'l',0x3C);
 }
-
-
 void screen2(void)
 {
 	scrn=2;// Литры в час, всего израсходовано, суточный пробег
 	PutStr_mid(2,0,"Fuel const",0x3C);
+	
 	OLED_temper_big(16, 2,fuel, 0x3C);
 	PutStr_mid(95,3,"l/h",0x3C);
+	
 	OLED_mid(0,6,impavr/impilse_per_litre,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
 	PutChar_mid(46,6,'l',0x3C);
+	
 	OLED_mid(74,6,trip/10,0x3C,3);
 	PutStr_mid(106,6,"km",0x3C);
 }
-
 void screen3(void)
 {
 	scrn=3;
@@ -63,7 +65,7 @@ void screen4(void)
 	PutStr_mid(0,0,"Trip",0x3C);OLED_mid(84,0,trip/10,0x3C,4);// Общий пробег
 	
 	PutStr_mid(0,2,"time",0x3C);OLED_mid(84,2,triptime/120,0x3C,2);// Время в пути
-			 OLED_mid(108,2,triptime%120,0x3C,2);OLED_doubledot_mid(106,2,0x3C);
+			 OLED_mid(108,2,(triptime>>1)%60,0x3C,2);OLED_doubledot_mid(106,2,0x3C);
 	
 	PutStr_mid(0,4,"Fuel",0x3C);OLED_mid(84,4,impavr/impilse_per_litre,0x3C,3);// Израсходовано топлива
 			OLED_dot_mid(116,4,0x3C); OLED_mid(120,4,(impavr/impilse_litre)%10,0x3C,1);
@@ -87,25 +89,22 @@ void screen6(void)
 	PutStr_mid(2,0,"Battery",0x3C);
 	OLED_temper_big(16, 2,volt/4, 0x3C);
 	PutStr_mid(100,3,"V",0x3C);
-//	OLED_mid(0,6,impavr/50000,0x3C,3);
-//	OLED_dot_mid(33,6,0x3C);
-//	OLED_mid(36,6,(impavr/5000)%10,0x3C,1);
-//	PutChar_mid(46,6,'l',0x3C);
-//	OLED_mid(74,6,trip/10,0x3C,3);
-//	PutStr_mid(106,6,"km",0x3C);
 }
 void screen7(void)
 {
 	scrn=7;// Уровень топлива в баке
-	unsigned int avrrash=(impavr/rash_const_div)/trip;
+	unsigned int avrrash=(100*impavr/Rdiv)/trip;
 	PutStr_mid(2,0,"Fuel tank",0x3C);
+	
 	OLED_temper_big(16, 2,fueltank, 0x3C); //Остаток топлива в баке
 	PutStr_mid(95,3,"ltr",0x3C);
+	
 	OLED_mid(0,6,impavr/impilse_per_litre,0x3C,3);//Израсходовано топлива
 	OLED_dot_mid(33,6,0x3C);
 	OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
 	PutChar_mid(46,6,'l',0x3C);
-	OLED_mid(74,6,(10*(unsigned long int)fueltank)/avrrash,0x3C,3);// Остаток пробега на основе среднего расхода топлива
+	
+	OLED_mid(74,6,(100*(unsigned long int)fueltank)/avrrash,0x3C,3);// Остаток пробега на основе среднего расхода топлива
 	PutStr_mid(106,6,"km",0x3C);
 }
 

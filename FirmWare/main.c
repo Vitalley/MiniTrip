@@ -6,7 +6,7 @@
 #include "config.h"
 #include "I2C.h"
 #include "EEPROM.h"
-
+//#include "median.c"
 /*
 fuel -  расход топлива 0.1литр в час
 speed - скорость км/ч*2
@@ -16,7 +16,7 @@ fueltank - количество топлива в баке *10 л
 */
 unsigned int imp, fuel, speed, speedcnt, fueltank, volt, volt_array[array_size_voltage+1], fuel_array[array_size_fuel+1];
 unsigned long int impavr, trip, triptime, totalodo, totaltime, TO1_ODO, TO1_TIME, TO2_ODO, TO2_TIME;
-bit turn=0, motoron=0, saveEEDATA=0;
+bit turn=0, motoron=0, saveEEDATA=0, bri = 0;
 char scrn, mscr, mkey;
 void init(void)
 {
@@ -79,7 +79,7 @@ unsigned int GET_ADC(char channel)
 	while (ADCON0bits.GO_nDONE)
 	return ((unsigned int)((ADRESH << 8) + ADRESL));
 }
-unsigned int SMA_filter(unsigned int a,unsigned  int* Massive, unsigned char array_size)
+unsigned int SMA_filter(unsigned int a,unsigned  int* Massive, const unsigned char array_size)
 {
 	char n=Massive[array_size];
 	if (n>=(array_size-1)) n=0;	
@@ -109,17 +109,28 @@ void main(void)
 	}
 
  	mscr = 0;speed=0;fuel=0;seladc=0;
+ 	OLEDbrightness(0x3c,0x00);
 
 while(1)
 {
 	CLRWDT();
 switch (seladc)
 {
-case 0:	if (GET_ADC(3) > 200) OLEDbrightness(0x3c,0x00); else OLEDbrightness(0x3c,0xD0);seladc++;
+case 0:	if (GET_ADC(3) > 200) 
+	{
+		if (!bri) {OLEDbrightness(0x3c,0x00); bri = 0;}
+	}	 
+	else 
+	{
+		if (bri) {OLEDbrightness(0x3c,0xF0); bri = 1;}
+		
+	}
+	seladc++;	
 	break;
 case 1:	volt = SMA_filter(GET_ADC(2), volt_array, array_size_voltage);seladc++;
 	break;
 case 2:	fueltank = SMA_filter(GET_ADC(0), fuel_array, array_size_fuel);
+	//fueltank = Wquick_select_median(fuel_array, array_size_fuel);
 	fueltank = fueltank - ft_sdd;
 	//fueltank = 183;
 	fueltank = (fueltank * (unsigned long int)ft_mult)/256;
@@ -132,7 +143,7 @@ default: seladc=0;
 	if (saveEEDATA) {EEWRITEFATA(); saveEEDATA=0;}
 	if (speed>10) turn=1; else turn=0;
 	if (fuel>1) motoron=1; else motoron=0;
-
+CLRWDT();
 	switch (mscr)
 	{
 	case 0: 	
@@ -158,44 +169,44 @@ default: seladc=0;
 			}
 		
 		}
-	break;
+		break;
 	
 	case 1:	
-		if (!motoron) if (!turn) {mscr++; break;}
+		if (!motoron) {mscr++; break;}
 		if (scrn != 3)oledClear(0x3C);
 		screen3();
-	break;
+		break;
 	
 	case 2:
 		if (!turn) 
 			if (!motoron) {mscr++; break;}
 		if (scrn != 4)oledClear(0x3C);
 		screen4();
-	break;
+		break;
 	
 	case 3:
-		if (volt==0) {mscr++; break;}
+		if (volt<10) {mscr++; break;}
 		if (scrn != 6)oledClear(0x3C);
 		screen6();
-	break;
+		break;
 	
 	case 4:
-		if (volt==0 || fueltank==0) {mscr++; break;}
+		if (volt<10 || fueltank==0) {mscr++; break;}
 		if (scrn != 7)oledClear(0x3C);
 		screen7();
-	break;
+		break;
 	
 	case 5:
 		if (motoron) {mscr++; break;}
 		if (scrn != 8)oledClear(0x3C);
 		screen8();
-	break;
+		break;
 	
 	case 6:
 		if (motoron) {mscr++; break;}
 		if (scrn != 9)oledClear(0x3C);
 		screen9();
-	break;
+		break;
 	
 	default:
 		if (turn) {mscr++; break;}
@@ -261,9 +272,11 @@ void TMR0_ISR(void)
     TMR0 = 176;
 
     // callback function - called every 391th pass
+    //	 Секундный счётчик
     if (++CountSeconds >= 391)
     {
 	CountSeconds=0;
+	// 30 Секундный счётчик
 	if (++CountTripTime >= 30)
     	{
 		if (fuel>1 | speed>1)
@@ -282,7 +295,7 @@ void TMR0_ISR(void)
     	}
 	
     }
-    if (++Count7n2Seconds >= 564/*1022*/)//563
+    if (++Count7n2Seconds >= 563/*1022*/)//563 при 25000 имп/литр
     {
 	fuel = imp; imp = 0;
 	Count7n2Seconds=0;
@@ -301,7 +314,7 @@ void TripCounter(void)
 {
     static volatile unsigned int CountKM = 0;
     speedcnt++;
-    if (++CountKM >= 408) // 100 метровый счётчик
+    if (++CountKM >= 409) // 100 метровый счётчик
     {
 	trip++; 
 	totalodo++;

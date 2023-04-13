@@ -123,7 +123,7 @@ void EEREADDATA(void)
 	{
 		trip = erd(EE_TRIP);
 		triptime = erd(EE_TRIPTIME);
-		impavr = erd(EE_TRIPAVR)+1;
+		impavr = erd(EE_TRIPAVR);
 		totalodo = erd(EE_TOTALODO);
 		totaltime = erd(EE_TOTALTIME);
 		TO1_ODO = erd(EE_TO1_ODO);
