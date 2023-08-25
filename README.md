@@ -15,7 +15,7 @@ Main feutures:
 ![Back](MiniTrip_Back.jpg)
 
 
-Testing on Audi A6/100 C4 with Digifant ECU ABK motor.
+Testing on Audi A6/100 C4 with Digifant ECU ABK motor and AAD Motronic.
 
 
 
@@ -30,3 +30,5 @@ Fuel level sensor
 |40L	|	 - 3,8v|
 |60L	|	 - 4,5v|
 |80L	|	 - 5,5v|
+
+Project create in MPLAB IDE v8.92 from Mictochip and XC8 Compiler
