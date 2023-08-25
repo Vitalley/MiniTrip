@@ -4,8 +4,8 @@
 extern char scrn;
 extern unsigned int speed, km,fuel,fueltank, volt;
 extern unsigned long int trip, impavr,triptime, totalodo,totaltime, TO1_ODO, TO1_TIME, TO2_ODO, TO2_TIME;
-const unsigned int 	impilse_litre = impilse_per_litre / 10;
-const unsigned  int 	Rdiv = impilse_per_litre / 100;
+const unsigned int 	impulse_litre = impulse_per_litre / 10;
+const unsigned  int 	Rdiv = impulse_per_litre / 100;
 void screen0(void)
 {
 	scrn=0;
@@ -27,7 +27,7 @@ void screen1(void)
 	PutStr_mid(98,4,"100",0x3C);
 	
 	// Всего израсходовано на поездку
-	OLED_mid(0,6,impavr/impilse_per_litre,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
+	OLED_mid(0,6,impavr/impulse_per_litre,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impulse_litre)%10,0x3C,1);
 	PutChar_mid(46,6,'l',0x3C);
 	
 	// Средний расход топлива за поездку
@@ -45,7 +45,7 @@ void screen2(void)
 	OLED_temper_big(16, 2,fuel, 0x3C);
 	PutStr_mid(95,3,"l/h",0x3C);
 	
-	OLED_mid(0,6,impavr/impilse_per_litre,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
+	OLED_mid(0,6,impavr/impulse_per_litre,0x3C,3);OLED_dot_mid(33,6,0x3C);OLED_mid(36,6,(impavr/impulse_litre)%10,0x3C,1);
 	PutChar_mid(46,6,'l',0x3C);
 	
 	OLED_mid(74,6,trip/10,0x3C,3);
@@ -57,20 +57,30 @@ void screen3(void)
 	PutStr_mid(0,5,"Trip",0x3C);
 	PutStr_mid(0,1,"Speed",0x3C);
 	OLED_4_big(64, 0,speed/2, 0x3C,3);
-	OLED_temper_big(48, 4,trip, 0x3C);
+	if (trip > 9999)
+	{
+		OLED_4_big(48, 4,trip/10, 0x3C,4);
+	}
+	else
+	{
+		OLED_temper_big(48, 4,trip, 0x3C);
+	}
 }
 void screen4(void)
 {
 	scrn=4;
-	PutStr_mid(0,0,"Trip",0x3C);OLED_mid(84,0,trip/10,0x3C,4);// Общий пробег
+	unsigned int loctrip = trip/10;
+	if (loctrip > 9999) loctrip =9999;
 	
-	PutStr_mid(0,2,"time",0x3C);OLED_mid(84,2,triptime/120,0x3C,2);// Время в пути
-			 OLED_mid(108,2,(triptime>>1)%60,0x3C,2);OLED_doubledot_mid(106,2,0x3C);
+	PutStr_mid(0,0,"Trip",0x3C);OLED_mid(82,0,loctrip,0x3C,4);// Общий пробег
 	
-	PutStr_mid(0,4,"Fuel",0x3C);OLED_mid(84,4,impavr/impilse_per_litre,0x3C,3);// Израсходовано топлива
-			OLED_dot_mid(116,4,0x3C); OLED_mid(120,4,(impavr/impilse_litre)%10,0x3C,1);
+	PutStr_mid(0,2,"time",0x3C);OLED_mid(82,2,triptime/120,0x3C,2);// Время в пути
+			 OLED_mid(106,2,(triptime>>1)%60,0x3C,2);OLED_doubledot_mid(104,2,0x3C);
 	
-	PutStr_mid(0,6,"Speed",0x3C);OLED_mid(84,6,12*(unsigned long int)trip/triptime,0x3C,4); // Средняя скорость
+	PutStr_mid(0,4,"Fuel",0x3C);OLED_mid(82,4,impavr/impulse_per_litre,0x3C,3);// Израсходовано топлива
+			OLED_dot_mid(114,4,0x3C); OLED_mid(117,4,(impavr/impulse_litre)%10,0x3C,1);
+	
+	PutStr_mid(0,6,"Speed",0x3C);OLED_mid(82,6,12*(unsigned long int)trip/triptime,0x3C,4); // Средняя скорость
 }
 void screen5(void)
 {
@@ -78,6 +88,8 @@ void screen5(void)
 	PutStr_mid(0,0,"Odo",0x3C);
 	PutStr_mid(10,2,"km",0x3C);
 	PutStr_mid(0,6,"time",0x3C);
+//	unsigned long int loctrip = totalodo/10;
+//	if (loctrip > 99999) loctrip =99999;
 	OLED_4_big(40, 0,totalodo/10, 0x3C,5);
 	OLED_4_big(48, 4,totaltime/120, 0x3C,4);
 	PutStr_mid(119,5,"h",0x3C);		
@@ -99,9 +111,9 @@ void screen7(void)
 	OLED_temper_big(16, 2,fueltank, 0x3C); //Остаток топлива в баке
 	PutStr_mid(95,3,"ltr",0x3C);
 	
-	OLED_mid(0,6,impavr/impilse_per_litre,0x3C,3);//Израсходовано топлива
+	OLED_mid(0,6,impavr/impulse_per_litre,0x3C,3);//Израсходовано топлива
 	OLED_dot_mid(33,6,0x3C);
-	OLED_mid(36,6,(impavr/impilse_litre)%10,0x3C,1);
+	OLED_mid(36,6,(impavr/impulse_litre)%10,0x3C,1);
 	PutChar_mid(46,6,'l',0x3C);
 	
 	OLED_mid(74,6,(100*(unsigned long int)fueltank)/avrrash,0x3C,3);// Остаток пробега на основе среднего расхода топлива
@@ -124,7 +136,9 @@ void screen9(void)
 	PutStr_mid(0,0,"TO2",0x3C);
 	PutStr_mid(10,2,"km",0x3C);
 	PutStr_mid(0,6,"time",0x3C);
-	OLED_4_big(40, 0,TO2_ODO/10, 0x3C,5);
+	unsigned long int loctrip = TO2_ODO/10;
+	if (loctrip > 99999) loctrip =99999;
+	OLED_4_big(40, 0,loctrip, 0x3C,5);
 	OLED_4_big(60, 4,TO2_TIME/120, 0x3C,3);
 	PutStr_mid(118,5,"h",0x3C);
 }
@@ -145,4 +159,10 @@ void screen12(void)
 	scrn=12;
 	oledClear(0x3C);
 	PutStr_mid(10,4,"Reset TO 2?",0x3C);
+}
+void screen13(void)
+{
+	scrn=13;
+	oledClear(0x3C);
+	PutStr_mid(10,4,"Set 80 ltr?",0x3C);
 }

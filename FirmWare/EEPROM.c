@@ -107,7 +107,7 @@ void ewr(unsigned long int dt,unsigned char eeadr)
 	for (char i=0;i<4;i++)
 	{
 		INTCONbits.GIE = 0;
-		eeprom_write(eeadr+i,dt);
+		eeprom_write(eeadr+i,(dt & 0xFF));
 		INTCONbits.GIE = 1;
 		dt=dt>>8;
 	}
@@ -121,63 +121,63 @@ void EEREADDATA(void)
 	if (eeprom_read(254) == 0x3A)//Сигнатура инициализированной памяти
 	
 	{
-		trip = erd(EE_TRIP);
-		triptime = erd(EE_TRIPTIME);
-		impavr = erd(EE_TRIPAVR);
-		totalodo = erd(EE_TOTALODO);
-		totaltime = erd(EE_TOTALTIME);
-		TO1_ODO = erd(EE_TO1_ODO);
-		TO1_TIME = erd(EE_TO1_TIME);
-		TO2_ODO = erd(EE_TO2_ODO);
-		TO2_TIME = erd(EE_TO2_TIME);
+		trip = erd((unsigned char)&EE_TRIP);
+		triptime = erd((unsigned char)&EE_TRIPTIME);
+		impavr = erd((unsigned char)&EE_TRIPAVR);
+		totalodo = erd((unsigned char)&EE_TOTALODO);
+		totaltime = erd((unsigned char)&EE_TOTALTIME);
+		TO1_ODO = erd((unsigned char)&EE_TO1_ODO);
+		TO1_TIME = erd((unsigned char)&EE_TO1_TIME);
+		TO2_ODO = erd((unsigned char)&EE_TO2_ODO);
+		TO2_TIME = erd((unsigned char)&EE_TO2_TIME);
 	}
 	else
 	{
 		eeprom_write(254,0x3A);
-		ewr(0x00000000,EE_TRIP);
-		ewr(0x00000000,EE_TRIPTIME);
-		ewr(0x00000000,EE_TRIPAVR);
-		ewr(0x00000000,EE_TOTALODO);
-		ewr(0x00000000,EE_TOTALTIME);
-		ewr(0x00000000,EE_TO1_ODO);
-		ewr(0x00000000,EE_TO1_TIME);
-		ewr(0x00000000,EE_TO2_ODO);
-		ewr(0x00000000,EE_TO2_TIME);
+		ewr(0x00000000,(unsigned char)&EE_TRIP);
+		ewr(0x00000000,(unsigned char)&EE_TRIPTIME);
+		ewr(0x00000000,(unsigned char)&EE_TRIPAVR);
+		ewr(0x00000000,(unsigned char)&EE_TOTALODO);
+		ewr(0x00000000,(unsigned char)&EE_TOTALTIME);
+		ewr(0x00000000,(unsigned char)&EE_TO1_ODO);
+		ewr(0x00000000,(unsigned char)&EE_TO1_TIME);
+		ewr(0x00000000,(unsigned char)&EE_TO2_ODO);
+		ewr(0x00000000,(unsigned char)&EE_TO2_TIME);
 	
 	}
 	
 }
 void EEWRITEFATA(void)
-{	ewr(trip,EE_TRIP);
-	ewr(triptime,EE_TRIPTIME);
-	ewr(impavr,EE_TRIPAVR);
-	ewr(totalodo,EE_TOTALODO);
-	ewr(totaltime,EE_TOTALTIME);
-	ewr(TO1_ODO,EE_TO1_ODO);
-	ewr(TO1_TIME,EE_TO1_TIME);
-	ewr(TO2_ODO,EE_TO2_ODO);
-	ewr(TO2_TIME,EE_TO2_TIME);
+{	ewr(trip,(unsigned char)&EE_TRIP);
+	ewr(triptime,(unsigned char)&EE_TRIPTIME);
+	ewr(impavr,(unsigned char)&EE_TRIPAVR);
+	ewr(totalodo,(unsigned char)&EE_TOTALODO);
+	ewr(totaltime,(unsigned char)&EE_TOTALTIME);
+	ewr(TO1_ODO,(unsigned char)&EE_TO1_ODO);
+	ewr(TO1_TIME,(unsigned char)&EE_TO1_TIME);
+	ewr(TO2_ODO,(unsigned char)&EE_TO2_ODO);
+	ewr(TO2_TIME,(unsigned char)&EE_TO2_TIME);
 }  
 void EETRIPRESET(void)
 {
 	CLRWDT();
-	ewr(0x00000000,EE_TRIP);
-	ewr(0x00000000,EE_TRIPTIME);
-	ewr(0x00000000,EE_TRIPAVR);
+	ewr(0x00000000,(unsigned char)&EE_TRIP);
+	ewr(0x00000000,(unsigned char)&EE_TRIPTIME);
+	ewr(0x00000000,(unsigned char)&EE_TRIPAVR);
 	_delay(40000);
 	asm("RESET");
 }
 void EETO1RESET(void)
 {
 	CLRWDT();
-	ewr(0x00000000,EE_TO1_ODO);
-	ewr(0x00000000,EE_TO1_TIME);
+	ewr(0x00000000,(unsigned char)&EE_TO1_ODO);
+	ewr(0x00000000,(unsigned char)&EE_TO1_TIME);
 	asm("RESET");
 }
 void EETO2RESET(void)
 {
 	CLRWDT();
-	ewr(0x00000000,EE_TO2_ODO);
-	ewr(0x00000000,EE_TO2_TIME);
+	ewr(0x00000000,(unsigned char)&EE_TO2_ODO);
+	ewr(0x00000000,(unsigned char)&EE_TO2_TIME);
 	asm("RESET");
 }   

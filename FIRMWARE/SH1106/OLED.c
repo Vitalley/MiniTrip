@@ -1,10 +1,10 @@
 #include <xc.h>
 //#include <stdio.h>
-#include "../MiniTrip/I2C.h"
-#include "../SH1106/OLED.h"
+#include "../I2C.h"
+#include "OLED.h"
 #define OLED_Adr 0x3C
-#include "SH1106\Font16x8.h"
-#include "SH1106\Font40x20.h"
+#include "Font16x8.h"
+#include "Font40x20.h"
 void oledCommand(unsigned char comm, unsigned char Adr) {
 	StartI2C();
 	if (WriteI2C( (Adr<<1) & 0xFE)!=0) return;//Ќачинаем передачу команд устройству с адресом Adr.
@@ -253,7 +253,7 @@ void OLED_temper_big(unsigned char x, unsigned char y,int val, unsigned char Adr
 	OLED_Char_big(x+61,y,val%10, Adr);
 	return;
 }
-void OLED_4_big(unsigned char x, unsigned char y,unsigned int val, unsigned char Adr, unsigned char c)
+void OLED_4_big(unsigned char x, unsigned char y,unsigned long int val, unsigned char Adr, unsigned char c)
 {
 	switch (c)
 	{
@@ -287,9 +287,16 @@ void OLED_dot_mid(unsigned char x, unsigned char y, unsigned char Adr)
 }
 void OLED_doubledot_mid(unsigned char x, unsigned char y, unsigned char Adr)
 {
+	OLED_set_XY (x, y, Adr);
+	oledData(0x00,Adr);
+	oledData(0b00110000,Adr);
+	oledData(0b00110000,Adr);
+//	oledData(0x00,Adr);
+
+
 	OLED_set_XY (x, y+1, Adr);
 	oledData(0x00,Adr);
-	oledData(0b01100011,Adr);
-	oledData(0b01100011,Adr);
-	oledData(0x00,Adr);
+	oledData(0b00001100,Adr);
+	oledData(0b00001100,Adr);
+//	oledData(0x00,Adr);
 }
