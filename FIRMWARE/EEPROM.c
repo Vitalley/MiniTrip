@@ -2,8 +2,16 @@
 #include "../SH1106/OLED.h"
 #include "EEPROM.h"
 extern unsigned long int trip,triptime,impavr, totalodo, totaltime, TO1_ODO, TO1_TIME, TO2_ODO, TO2_TIME;
-eeprom unsigned char EE_TRIP[5], EE_TRIPTIME[5], EE_TRIPAVR[5], EE_TOTALODO[5],EE_TOTALTIME[5], EE_TO1_ODO[5],
-			EE_TO1_TIME[5], EE_TO2_ODO[5], EE_TO2_TIME[5];
+eeprom unsigned char 	EE_TRIP[10],			// Пробег за поездку
+						EE_TRIPTIME[10], 	// Время в пути за поездку
+						EE_TRIPAVR[10], 		// Израсходовано топлива за поездку
+						EE_FUEL_LEFT[10], 		// Израсходовано топлива за поездку
+						EE_TOTALODO[10],		// Общий расход
+						EE_TOTALTIME[10], 	// Общее время в пути
+						EE_TO1_ODO[10],		// Пробег 1 технического обслуживания
+						EE_TO1_TIME[10], 	// Моточасы 1 технического обслуживания
+						EE_TO2_ODO[10], 		// Пробег 2 технического обслуживания
+						EE_TO2_TIME[10];		// Моточасы 2 технического обслуживания
 
 /*
     unsigned char EEPROM_ReadByte(unsigned char eeprom_Address)
@@ -92,13 +100,22 @@ unsigned long int erd(unsigned char eeadr)
 			rtt=rtt+eeprom_read(eeadr+i-1);		
 		}
 	}
-	else
-	{
-		ewr(rtt,eeadr);
-	}
+	else if (eeprom_read(eeadr+9) == 0x35)//Сигнатура целостности 2й части
+		{
+			for (char i=4;i>0;i--)
+			{
+				rtt=rtt<<8;
+				rtt=rtt+eeprom_read(eeadr+i+4);		
+			}
+//		ewr2(rtt,eeadr);			
+		}
+		else	
+		{
+			ewr(rtt,eeadr);
+		}
 	return ~rtt;
 } 
-void ewr(unsigned long int dt,unsigned char eeadr)
+void ewr2(unsigned long int dt,unsigned char eeadr)
 {
 	dt=~dt;
 	INTCONbits.GIE = 0;
@@ -114,7 +131,12 @@ void ewr(unsigned long int dt,unsigned char eeadr)
 	INTCONbits.GIE = 0;
 	eeprom_write(eeadr+4,0x35);//Сигнатура целостности
 	INTCONbits.GIE = 1;
-}  
+}
+void ewr(unsigned long int dt,unsigned char eeadr)
+{
+	ewr2(dt,eeadr);
+	ewr2(dt,eeadr+5);
+}
 void EEREADDATA(void)
 {
 	CLRWDT();
@@ -157,6 +179,7 @@ void EEWRITEFATA(void)
 	ewr(TO1_TIME,(unsigned char)&EE_TO1_TIME);
 	ewr(TO2_ODO,(unsigned char)&EE_TO2_ODO);
 	ewr(TO2_TIME,(unsigned char)&EE_TO2_TIME);
+//	ewr(0xFF,(unsigned char)&EE_FUEL_LEFT);
 }  
 void EETRIPRESET(void)
 {
@@ -180,4 +203,10 @@ void EETO2RESET(void)
 	ewr(0x00000000,(unsigned char)&EE_TO2_ODO);
 	ewr(0x00000000,(unsigned char)&EE_TO2_TIME);
 	asm("RESET");
-}   
+}
+void EEFUELTANKRESET(void)
+{
+	CLRWDT();
+	ewr(0x00000000,(unsigned char)&EE_FUEL_LEFT);
+	asm("RESET");
+}    

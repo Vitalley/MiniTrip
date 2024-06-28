@@ -74,7 +74,7 @@ void screen4(void)
 	
 	PutStr_mid(0,0,"Trip",0x3C);OLED_mid(82,0,loctrip,0x3C,4);// Общий пробег
 	
-	PutStr_mid(0,2,"time",0x3C);OLED_mid(82,2,triptime/120,0x3C,2);// Время в пути
+	PutStr_mid(0,2,"Time",0x3C);OLED_mid(82,2,triptime/120,0x3C,2);// Время в пути
 			 OLED_mid(106,2,(triptime>>1)%60,0x3C,2);OLED_doubledot_mid(104,2,0x3C);
 	
 	PutStr_mid(0,4,"Fuel",0x3C);OLED_mid(82,4,impavr/impulse_per_litre,0x3C,3);// Израсходовано топлива

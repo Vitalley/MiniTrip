@@ -362,8 +362,20 @@ void interrupt isr(void)
     	}
         // interrupt on change for pin IOCBF0
     	if(IOCB.b0 == 1)
-   	{
-        	if (RB0 == 0) TripCounter();	     
+   		{
+        	if (RB0 == 0) TripCounter();
+/*        	if (IOCBN0) 
+	        	{
+		        	TripCounter();
+		        	IOCBN0 = 0;
+		        	IOCBP0 = 1;
+		        }
+        	if (IOCBF0)	     
+	        	{
+		        	IOCBP0 = 0;
+		        	IOCBN0 = 1;
+        		}
+ */
     	}	
 	// interrupt on change for pin IOCBF5
     	if(IOCB.b5 == 1)
