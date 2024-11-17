@@ -1,7 +1,10 @@
 # MiniTrip
 Miniature trip computer for Audi 80/100/200/A6C4 on PIC16F1847 with display SH1109/SSD1306/SSD1309 OLED controllers 128x64 pixel
 
-![Front](MiniTrip_Front.jpg)
+
+![MiniCheck](MiniCheck.jpg)
+![Test View](P21202-175737.jpg)
+
 
 Main feutures:
 - fuel consumption;
@@ -12,6 +15,7 @@ Main feutures:
 - fuel level.
 
 
+![Front](MiniTrip_Front.jpg)
 ![Back](MiniTrip_Back.jpg)
 
 

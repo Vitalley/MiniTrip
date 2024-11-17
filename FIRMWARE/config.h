@@ -6,3 +6,4 @@
 #define array_size_voltage 8
 #define array_size_fuel 64
 #define impulse_per_litre 22500
+#define OLED_Adr 0x3C
